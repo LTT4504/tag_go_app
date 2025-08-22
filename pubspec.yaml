@@ -1,7 +1,7 @@
 name: taggo
 description: A new Flutter project with Firebase + Google Sign In + GetX routing
 
-publish_to: "none" # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove nếu muốn public lên pub.dev
 
 version: 1.0.0+1
 
@@ -13,6 +13,7 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.8
+  flutter_svg: ^2.0.10+1
 
   # Firebase
   firebase_core: ^3.6.0
@@ -28,8 +29,16 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
   flutter_lints: ^4.0.0
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/svgs/
+
+  fonts:
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto-VariableFont_wdth,wght.ttf
