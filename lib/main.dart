@@ -9,7 +9,7 @@ import 'theme/app_theme.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
-  await Firebase.initializeApp(); // đảm bảo đã có google-services.json
+  await Firebase.initializeApp();
 
   runApp(const TagGoApp());
 }
@@ -22,8 +22,7 @@ class TagGoApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'TagGo',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
-      darkTheme: AppTheme.dark,
+      theme: AppTheme.lightTheme,
       themeMode: ThemeMode.system,
       initialRoute: AppRoutes.splash,
       getPages: AppPages.pages,
