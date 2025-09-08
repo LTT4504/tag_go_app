@@ -3,23 +3,28 @@ import '../constants/colors.dart';
 
 class AppInput extends StatelessWidget {
   final String label;
-  final bool obscure;
-  final ValueChanged<String> onChanged;
+  final bool obscure; // ẩn/hiện mật khẩu
+  final ValueChanged<String>? onChanged;
   final String? Function(String?)? validator;
-  final Widget? suffixIcon;
+  final Widget? suffixIcon; // icon cuối (ví dụ: con mắt)
+  final Widget? prefixIcon; // icon đầu (ví dụ: email, user)
+  final TextEditingController? controller; // thêm controller
 
   const AppInput({
     super.key,
     required this.label,
     this.obscure = false,
-    required this.onChanged,
+    this.onChanged,
     this.validator,
     this.suffixIcon,
+    this.prefixIcon,
+    this.controller,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      controller: controller, // gắn controller
       obscureText: obscure,
       onChanged: onChanged,
       validator: validator,
@@ -39,7 +44,8 @@ class AppInput extends StatelessWidget {
           fontWeight: FontWeight.w600,
           fontSize: 18,
         ),
-        suffixIcon: suffixIcon,
+        prefixIcon: prefixIcon, // icon đầu
+        suffixIcon: suffixIcon, // icon cuối
         enabledBorder: const OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(14)),
           borderSide: BorderSide(color: AppColors.darkPinkColor, width: 1.5),

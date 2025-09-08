@@ -10,8 +10,8 @@ class SplashView extends GetView<SplashController> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-         width: double.infinity,
-        height: double.infinity, // ✅ ép full màn hình
+        width: double.infinity,
+        height: double.infinity, // ép full màn hình
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -31,7 +31,10 @@ class SplashView extends GetView<SplashController> {
                 width: 400,
                 height: 400,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
+              const CircularProgressIndicator(
+                color: AppColors.pinkColor,
+              ),
             ],
           ),
         ),

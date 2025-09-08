@@ -8,12 +8,14 @@ class SplashController extends GetxController {
   @override
   void onReady() {
     super.onReady();
-    _next();
+    _handleNext();
   }
 
-  Future<void> _next() async {
+  Future<void> _handleNext() async {
     await Future.delayed(const Duration(seconds: 2));
+
     final seenIntro = box.read('seenIntro') == true;
+
     if (seenIntro) {
       Get.offAllNamed(AppRoutes.login);
     } else {

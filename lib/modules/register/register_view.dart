@@ -1,23 +1,22 @@
+// 📌 RegisterView
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import '../../shared/constants/colors.dart';
 import '../../shared/widgets/app_input.dart';
-import '../register/register_binding.dart';
-import '../register/register_view.dart';
-import 'login_controller.dart';
+import 'register_controller.dart';
 
-class LoginView extends GetView<LoginController> {
-  const LoginView({super.key});
+class RegisterView extends GetView<RegisterController> {
+  const RegisterView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final formKey = GlobalKey<FormState>();
+
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     final scale = width / 375;
 
     return Scaffold(
-      resizeToAvoidBottomInset: true,
       body: Container(
         width: double.infinity,
         height: double.infinity,
@@ -49,16 +48,17 @@ class LoginView extends GetView<LoginController> {
 
                   /// Form
                   Form(
+                    key: formKey,
                     child: Column(
                       children: [
-                        /// Username
+                        /// Email
                         AppInput(
                           label: "Email",
-                          onChanged: (v) => controller.username.value = v,
+                          onChanged: (v) => controller.email.value = v,
                           validator: (v) =>
                               v == null || v.isEmpty ? "Enter email" : null,
                           prefixIcon: const Icon(
-                            Icons.person,
+                            Icons.email,
                             color: AppColors.darkPinkColor,
                           ),
                         ),
@@ -83,43 +83,47 @@ class LoginView extends GetView<LoginController> {
                                       : Icons.visibility_off,
                                   color: Colors.black,
                                 ),
-                                onPressed: controller.togglePassword,
+                                onPressed: controller.showPassword.toggle,
                               ),
                             )),
-                        SizedBox(height: 12 * scale),
+                        SizedBox(height: 16 * scale),
 
-                        /// Remember me
-                        Obx(() => Row(
-                              children: [
-                                Transform.scale(
-                                  scale: 1.1 * scale,
-                                  child: Checkbox(
-                                    value: controller.rememberMe.value,
-                                    activeColor: AppColors.darkPinkColor,
-                                    onChanged: (val) => controller
-                                        .rememberMe.value = val ?? false,
-                                  ),
+                        /// Confirm password
+                        Obx(() => AppInput(
+                              label: "Confirm Password",
+                              obscure: !controller.showConfirmPassword.value,
+                              onChanged: (v) =>
+                                  controller.confirmPassword.value = v,
+                              validator: (v) => v == null || v.isEmpty
+                                  ? "Confirm your password"
+                                  : null,
+                              prefixIcon: const Icon(
+                                Icons.lock_outline,
+                                color: AppColors.darkPinkColor,
+                              ),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  controller.showConfirmPassword.value
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                  color: Colors.black,
                                 ),
-                                Text(
-                                  "Remember me",
-                                  style: TextStyle(
-                                    color: Colors.black87,
-                                    fontSize: 15 * scale,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
+                                onPressed:
+                                    controller.showConfirmPassword.toggle,
+                              ),
                             )),
-                        SizedBox(height: 18 * scale),
+                        SizedBox(height: 20 * scale),
 
-                        /// Login button
+                        /// Button loading
                         Obx(() => SizedBox(
                               width: double.infinity,
                               child: ElevatedButton(
                                 onPressed: controller.loading.value
                                     ? null
                                     : () {
-                                        controller.login();
+                                        if (formKey.currentState!.validate()) {
+                                          controller.register();
+                                        }
                                       },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.pinkColor,
@@ -140,7 +144,7 @@ class LoginView extends GetView<LoginController> {
                                         ),
                                       )
                                     : Text(
-                                        "Login",
+                                        "Sign Up",
                                         style: TextStyle(
                                           fontSize: 18 * scale,
                                           fontWeight: FontWeight.w600,
@@ -155,7 +159,7 @@ class LoginView extends GetView<LoginController> {
                   SizedBox(height: 14 * scale),
 
                   /// Error message
-                  Obx(() => controller.error.value.isNotEmpty
+                  Obx(() => controller.error.isNotEmpty
                       ? Text(
                           controller.error.value,
                           style: TextStyle(
@@ -164,82 +168,23 @@ class LoginView extends GetView<LoginController> {
                           ),
                         )
                       : const SizedBox.shrink()),
-                  SizedBox(height: 12 * scale),
-
-                  /// Forgot password
-                  TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      "Forgot password?",
-                      style: TextStyle(
-                        color: Colors.black87,
-                        fontSize: 15 * scale,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 18 * scale),
-
-                  /// Divider
-                  Row(
-                    children: [
-                      const Expanded(
-                          child: Divider(thickness: 1, color: Colors.black26)),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 8.0 * scale),
-                        child: Text(
-                          "or continue with",
-                          style: TextStyle(
-                            color: Colors.black54,
-                            fontSize: 14 * scale,
-                          ),
-                        ),
-                      ),
-                      const Expanded(
-                          child: Divider(thickness: 1, color: Colors.black26)),
-                    ],
-                  ),
                   SizedBox(height: 20 * scale),
 
-                  /// Social login
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildSocialButton(
-                        asset: 'assets/svgs/google.svg',
-                        onTap: () {
-                          FocusScope.of(context).unfocus();
-                          controller.loginWithGoogle();
-                        },
-                        size: 48 * scale,
-                      ),
-                      SizedBox(width: 16 * scale),
-                      _buildSocialButton(
-                        asset: 'assets/svgs/facebook.svg',
-                        onTap: () {},
-                        size: 48 * scale,
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 30 * scale),
-
-                  /// Create account
+                  /// Already have account
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "Don’t have an account?",
+                        "Already have an account?",
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 15 * scale,
                         ),
                       ),
                       TextButton(
-                        onPressed: () {
-                          Get.to(() => const RegisterView(),
-                              binding: RegisterBinding());
-                        },
+                        onPressed: () => Get.back(),
                         child: Text(
-                          "Create",
+                          "Login",
                           style: TextStyle(
                             color: AppColors.pinkColor,
                             fontWeight: FontWeight.bold,
@@ -254,22 +199,6 @@ class LoginView extends GetView<LoginController> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  /// Social Button
-  Widget _buildSocialButton({
-    required String asset,
-    required VoidCallback onTap,
-    double size = 48,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: CircleAvatar(
-        radius: size / 2,
-        backgroundColor: Colors.grey.shade200,
-        child: SvgPicture.asset(asset, height: size * 0.6, width: size * 0.6),
       ),
     );
   }
