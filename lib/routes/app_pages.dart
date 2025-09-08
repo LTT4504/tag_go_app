@@ -13,6 +13,8 @@ import '../modules/my_map/my_map_binding.dart';
 import '../modules/my_map/my_map_view.dart';
 import '../modules/profile/profile_binding.dart';
 import '../modules/profile/profile_view.dart';
+import '../modules/register/register_binding.dart';
+import '../modules/register/register_view.dart';
 import '../modules/splash/splash_binding.dart';
 
 import '../modules/splash/splash_screen.dart';
@@ -66,6 +68,11 @@ class AppPages {
       name: AppRoutes.profile,
       page: () => const ProfileView(),
       binding: ProfileBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.register,
+      page: () => const RegisterView(),
+      binding: RegisterBinding(),
     ),
   ];
 }
