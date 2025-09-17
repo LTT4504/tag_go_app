@@ -9,4 +9,5 @@ class AppRoutes {
   static const friendsMap = '/friends-map';
   static const profile = '/profile';
   static const register = '/register';
+  static const settings = '/settings';
 }
