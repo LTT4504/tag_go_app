@@ -13,13 +13,10 @@ class SplashView extends GetView<SplashController> {
         width: double.infinity,
         height: double.infinity, // ép full màn hình
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
+           gradient: LinearGradient(
+            colors: [Colors.white, AppColors.pastelYellow],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              AppColors.pastelYellow,
-              AppColors.textWhite,
-            ],
           ),
         ),
         child: Center(
