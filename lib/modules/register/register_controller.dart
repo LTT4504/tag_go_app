@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class RegisterController extends GetxController {
   var email = "".obs;
+  var phoneNumber = "".obs; // ✅ thêm số điện thoại
   var password = "".obs;
   var confirmPassword = "".obs;
   var loading = false.obs;
@@ -36,7 +37,10 @@ class RegisterController extends GetxController {
         password: password.value.trim(),
       );
 
-      // ✅ Hiện snackbar thông báo
+      // ⚡️ Ở đây Firebase mặc định chỉ lưu email + password
+      // Nếu muốn lưu thêm số điện thoại -> cần lưu Firestore hoặc Realtime Database.
+      // VD: FirebaseFirestore.instance.collection("users").doc(uid).set({"phone": phoneNumber.value});
+
       Get.snackbar(
         "Success",
         "Account created successfully. Please login!",
@@ -46,10 +50,8 @@ class RegisterController extends GetxController {
         duration: const Duration(seconds: 2),
       );
 
-      // ✅ Quay về màn Login sau 1s
       await Future.delayed(const Duration(seconds: 1));
       Get.offAllNamed("/login");
-
     } on FirebaseAuthException catch (e) {
       error.value = e.message ?? "Registration failed";
 

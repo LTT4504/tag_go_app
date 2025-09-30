@@ -13,7 +13,7 @@ class AuthService {
     try {
       final isSignedIn = await _googleSignIn.isSignedIn();
       if (isSignedIn) {
-        await _googleSignIn.disconnect().catchError((_) {});
+        await _googleSignIn.disconnect().catchError((_) => null);
       }
 
       final account = await _googleSignIn.signIn();
@@ -26,7 +26,7 @@ class AuthService {
       );
 
       return await _auth.signInWithCredential(credential);
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException {
       rethrow; // 👈 giữ nguyên lỗi cho LoginController xử lý
     }
   }
@@ -71,7 +71,7 @@ class AuthService {
     try {
       final isSignedIn = await _googleSignIn.isSignedIn();
       if (isSignedIn) {
-        await _googleSignIn.disconnect().catchError((_) {});
+        await _googleSignIn.disconnect().catchError((_) => null);
         await _googleSignIn.signOut();
       }
     } catch (e) {

@@ -9,6 +9,7 @@ class AppInput extends StatelessWidget {
   final Widget? suffixIcon; // icon cuối (ví dụ: con mắt)
   final Widget? prefixIcon; // icon đầu (ví dụ: email, user)
   final TextEditingController? controller; // thêm controller
+  final TextInputType? keyboardType; // Thêm thuộc tính keyboardType
 
   const AppInput({
     super.key,
@@ -19,6 +20,7 @@ class AppInput extends StatelessWidget {
     this.suffixIcon,
     this.prefixIcon,
     this.controller,
+    this.keyboardType, // Khởi tạo keyboardType
   });
 
   @override
@@ -29,6 +31,7 @@ class AppInput extends StatelessWidget {
       onChanged: onChanged,
       validator: validator,
       cursorColor: Colors.black,
+      keyboardType: keyboardType, // Thêm keyboardType vào TextFormField
       style: const TextStyle(
         fontWeight: FontWeight.w600,
         fontSize: 18,

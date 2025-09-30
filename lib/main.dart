@@ -26,6 +26,12 @@ class TagGoApp extends StatelessWidget {
       themeMode: ThemeMode.system,
       initialRoute: AppRoutes.splash,
       getPages: AppPages.pages,
+      builder: (context, child) {
+        return SafeArea(
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
     );
   }
 }
+
