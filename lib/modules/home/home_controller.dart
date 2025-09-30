@@ -8,7 +8,7 @@ import '../../routes/app_routes.dart';
 class HomeController extends GetxController {
   final spots = <Spot>[].obs;
   var currentPosition = Rxn<LatLng>();
-  final mapController = MapController(); // 👈 thêm controller
+  final mapController = MapController(); 
 
   @override
   void onInit() {
@@ -34,7 +34,7 @@ class HomeController extends GetxController {
 
     currentPosition.value = LatLng(pos.latitude, pos.longitude);
 
-    // 👇 Khi có vị trí thì move map tới vị trí đó
+    // When there is a location, move the map to that location
     if (currentPosition.value != null) {
       mapController.move(currentPosition.value!, 16);
     }

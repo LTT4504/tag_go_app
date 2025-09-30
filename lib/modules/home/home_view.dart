@@ -15,58 +15,67 @@ class HomeView extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBody: true, // 👈 cho phép body tràn xuống dưới BottomAppBar
+      extendBody: true,
       appBar: AppBar(
-  backgroundColor: Colors.white,
-  elevation: 2,
-  shadowColor: Colors.black12,
-  toolbarHeight: 64,
-  titleSpacing: 12,
-  title: Row(
-    children: [
-      // 🔎 Ô tìm kiếm
-      Expanded(
-        child: Container(
-          margin: const EdgeInsets.only(right: 12),
-          height: 48,
-          decoration: BoxDecoration(
-            color: Colors.grey[100],
-            borderRadius: BorderRadius.circular(30),
-            border: Border.all(color: Colors.grey.shade300),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        toolbarHeight: 64,
+        titleSpacing: 12,
+        automaticallyImplyLeading: false,
+        flexibleSpace: ClipRRect(
+          borderRadius: const BorderRadius.vertical(
+            bottom: Radius.circular(24),
           ),
-          child: TextField(
-            decoration: InputDecoration(
-              hintText: "Tìm kiếm địa điểm...",
-              hintStyle: const TextStyle(color: Colors.black54),
-              prefixIcon: const Icon(Icons.search, color: Colors.black87),
-              suffixIcon: IconButton(
-                icon: const Icon(Icons.tune, color: Colors.black87),
-                onPressed: () {
-                  // TODO: filter
-                },
-              ),
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(vertical: 12),
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 6,
+                  offset: Offset(0, 3),
+                ),
+              ],
             ),
-            onSubmitted: (value) {
-              // controller.searchPlaces(value);
-            },
           ),
         ),
+        title: Row(
+          children: [
+            Expanded(
+              child: Container(
+                margin: const EdgeInsets.only(right: 12),
+                height: 48,
+                decoration: BoxDecoration(
+                  color: AppColors.textWhite,
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: AppColors.textWhite),
+                ),
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: "Tìm kiếm địa điểm...",
+                    hintStyle: const TextStyle(color: Colors.black54),
+                    prefixIcon:
+                        const Icon(Icons.search, color: Colors.black87),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.tune, color: Colors.black87),
+                      onPressed: () {},
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.notifications_none,
+                  color: Colors.black87, size: 28),
+              onPressed: () {
+                Get.snackbar("Thông báo", "Chưa có thông báo mới!");
+              },
+            ),
+          ],
+        ),
       ),
-
-      // 🔔 Nút chuông thông báo
-      IconButton(
-        icon: const Icon(Icons.notifications_none, color: Colors.black87, size: 28),
-        onPressed: () {
-          // TODO: mở màn hình thông báo
-          Get.snackbar("Thông báo", "Chưa có thông báo mới!");
-        },
-      ),
-    ],
-  ),
-),
-
 
       body: Container(
         decoration: const BoxDecoration(
@@ -90,7 +99,8 @@ class HomeView extends GetView<HomeController> {
                 ),
                 children: [
                   TileLayer(
-                    urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    urlTemplate:
+                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                     userAgentPackageName: 'com.example.taggo',
                   ),
                   MarkerLayer(
@@ -110,7 +120,7 @@ class HomeView extends GetView<HomeController> {
                           point: userPos,
                           width: 100,
                           height: 100,
-                          child: const PulseMarker(), // 👈 hiệu ứng gợn sóng
+                          child: const PulseMarker(),
                         ),
                       ],
                       ...controller.spots.map(
@@ -132,7 +142,7 @@ class HomeView extends GetView<HomeController> {
 
               // 👉 Nút quay về vị trí hiện tại
               Positioned(
-                bottom: 90,
+                bottom: 120,
                 right: 16,
                 child: FloatingActionButton(
                   heroTag: "refresh",
@@ -151,66 +161,94 @@ class HomeView extends GetView<HomeController> {
         }),
       ),
 
-      bottomNavigationBar: BottomAppBar(
-  color: Colors.transparent,
-  elevation: 0,
-  child: ClipRRect(
-    child: BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10), // 👈 kính mờ iOS
-      child: SizedBox(
-        height: 64,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildNavItem(Icons.list_alt, "Danh sách", () => Get.toNamed(AppRoutes.myMap)),
-            _buildNavItem(Icons.group, "Bạn bè", () => Get.toNamed(AppRoutes.friendsMap)),
-
-            // 👇 Nút thêm nằm trong bar luôn
-            Container(
-              width: 56,
-              height: 56,
-              decoration: const BoxDecoration(
-                color: AppColors.pinkColor,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 6,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: IconButton(
-                icon: const Icon(Icons.add_location_alt, color: Colors.white, size: 28),
-                onPressed: controller.goAddSpot,
-              ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 25),
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: AppColors.darkPinkColor,
+              width: 2,
             ),
-
-            _buildNavItem(Icons.person, "Hồ sơ", () => Get.toNamed(AppRoutes.profile)),
-            _buildNavItem(Icons.settings, "Cài đặt", () => Get.toNamed(AppRoutes.settings)),
-          ],
+            color: AppColors.textWhite.withValues(alpha: 0.2),
+            borderRadius: BorderRadius.circular(50),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 6,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: SizedBox(
+            height: 70,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildCircleButton(
+                  Icons.list_alt,
+                  () {
+                    Get.toNamed(AppRoutes.myMap);
+                  },
+                  size: 45, 
+                ),
+                _buildCircleButton(
+                  Icons.group,
+                  () {
+                    Get.toNamed(AppRoutes.friendsMap);
+                  },
+                  size: 45, 
+                ),
+                _buildCircleButton(
+                  Icons.add_location_alt,
+                  () {
+                    controller.goAddSpot();
+                  },
+                  bgColor: AppColors.darkPinkColor,
+                  iconColor: AppColors.textWhite,
+                  size: 60, 
+                ),
+                _buildCircleButton(
+                  Icons.person,
+                  () {
+                    Get.toNamed(AppRoutes.profile);
+                  },
+                  size: 45, 
+                ),
+                _buildCircleButton(
+                  Icons.settings,
+                  () {
+                    Get.toNamed(AppRoutes.settings);
+                  },
+                  size: 45, 
+                ),
+              ],
+            ),
+          ),
         ),
       ),
-    ),
-  ),
-),
     );
   }
 
-  // Helper method for building navigation bar items
-  Widget _buildNavItem(IconData icon, String label, VoidCallback onTap) {
-    return GestureDetector(
+  Widget _buildCircleButton(IconData icon, VoidCallback onTap,
+      {Color bgColor = Colors.white, Color iconColor = Colors.black87, double size = 50}) {
+    return InkWell(
       onTap: onTap,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: Colors.black87, size: 28),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: const TextStyle(fontSize: 12, color: Colors.black87),
-          ),
-        ],
+      borderRadius: BorderRadius.circular(30),
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: bgColor,
+          shape: BoxShape.circle,
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 4,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Icon(icon, color: iconColor, size: 26),
       ),
     );
   }

@@ -1,4 +1,3 @@
-// 📌 RegisterView
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../shared/constants/colors.dart';
@@ -17,6 +16,7 @@ class RegisterView extends GetView<RegisterController> {
     final scale = width / 375;
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: Container(
         width: double.infinity,
         height: double.infinity,
@@ -24,12 +24,12 @@ class RegisterView extends GetView<RegisterController> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [AppColors.pastelYellow, AppColors.textWhite],
+            colors: [ AppColors.textWhite, AppColors.pastelYellow],
           ),
         ),
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: EdgeInsets.all(20 * scale),
+            padding: EdgeInsets.all(20 * scale).copyWith(top: 10 * scale),
             child: ConstrainedBox(
               constraints: BoxConstraints(
                 minHeight: height -
@@ -37,7 +37,8 @@ class RegisterView extends GetView<RegisterController> {
                     MediaQuery.of(context).padding.bottom,
               ),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start, // Align all content to the top
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   /// Logo
                   Image.asset(
@@ -59,6 +60,21 @@ class RegisterView extends GetView<RegisterController> {
                               v == null || v.isEmpty ? "Enter email" : null,
                           prefixIcon: const Icon(
                             Icons.email,
+                            color: AppColors.darkPinkColor,
+                          ),
+                        ),
+                        SizedBox(height: 16 * scale),
+
+                        /// Phone Number ✅ thêm vào
+                        AppInput(
+                          label: "Phone Number",
+                          keyboardType: TextInputType.phone,
+                          onChanged: (v) => controller.phoneNumber.value = v,
+                          validator: (v) => v == null || v.isEmpty
+                              ? "Enter phone number"
+                              : null,
+                          prefixIcon: const Icon(
+                            Icons.phone,
                             color: AppColors.darkPinkColor,
                           ),
                         ),
