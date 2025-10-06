@@ -207,7 +207,7 @@ class LoginView extends GetView<LoginController> {
                           asset: 'assets/svgs/google.svg',
                           onTap: () {
                             FocusScope.of(context).unfocus();
-                            controller.loginWithGoogle();
+                            // controller.loginWithGoogle();
                           },
                           size: 48 * scale,
                         ),
