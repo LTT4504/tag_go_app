@@ -37,10 +37,7 @@ class RegisterController extends GetxController {
         password: password.value.trim(),
       );
 
-      // ⚡️ Ở đây Firebase mặc định chỉ lưu email + password
-      // Nếu muốn lưu thêm số điện thoại -> cần lưu Firestore hoặc Realtime Database.
-      // VD: FirebaseFirestore.instance.collection("users").doc(uid).set({"phone": phoneNumber.value});
-
+     
       Get.snackbar(
         "Success",
         "Account created successfully. Please login!",

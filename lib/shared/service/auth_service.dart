@@ -1,35 +1,17 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'dart:developer'; // Added for using log
+
+// import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  // final GoogleSignIn _googleSignIn = GoogleSignIn(); // Google Sign-In disabled
 
+  /// Stream user thay đổi (login/logout)
   Stream<User?> userChanges() => _auth.authStateChanges();
+
+  /// User hiện tại
   User? get currentUser => _auth.currentUser;
-
-  /// Đăng nhập Google
-  Future<UserCredential?> signInWithGoogle() async {
-    try {
-      final isSignedIn = await _googleSignIn.isSignedIn();
-      if (isSignedIn) {
-        await _googleSignIn.disconnect().catchError((_) => null);
-      }
-
-      final account = await _googleSignIn.signIn();
-      if (account == null) return null;
-
-      final auth = await account.authentication;
-      final credential = GoogleAuthProvider.credential(
-        accessToken: auth.accessToken,
-        idToken: auth.idToken,
-      );
-
-      return await _auth.signInWithCredential(credential);
-    } on FirebaseAuthException {
-      rethrow; // 👈 giữ nguyên lỗi cho LoginController xử lý
-    }
-  }
 
   /// Đăng nhập bằng Email/Password
   Future<UserCredential?> signInWithEmailPassword(
@@ -39,12 +21,26 @@ class AuthService {
         email: email,
         password: password,
       );
-    } on FirebaseAuthException {
-      rethrow; // 👈 không throw String nữa
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'wrong-password') {
+        log("Lỗi: Mật khẩu không đúng.");
+        throw FirebaseAuthException(
+          code: e.code,
+          message: "Mật khẩu không đúng. Vui lòng thử lại.",
+        );
+      } else if (e.code == 'user-not-found') {
+        log("Lỗi: Không tìm thấy người dùng với email này.");
+        throw FirebaseAuthException(
+          code: e.code,
+          message: "Không tìm thấy người dùng với email này.",
+        );
+      } else {
+        rethrow;
+      }
     }
   }
 
-  /// Đăng ký Email/Password
+  /// Đăng ký bằng Email/Password
   Future<UserCredential?> registerWithEmailPassword(
       String email, String password) async {
     try {
@@ -66,16 +62,20 @@ class AuthService {
     }
   }
 
-  /// Đăng xuất
+  /// Đăng nhập Google
+  Future<UserCredential?> signInWithGoogle() async {
+    // Google Sign-In functionality is currently disabled
+    log("Google Sign-In is disabled.");
+    return null;
+  }
+
+  /// Đăng xuất (Firebase + Google)
   Future<void> signOut() async {
     try {
-      final isSignedIn = await _googleSignIn.isSignedIn();
-      if (isSignedIn) {
-        await _googleSignIn.disconnect().catchError((_) => null);
-        await _googleSignIn.signOut();
-      }
+      // Google Sign-In functionality is currently disabled
+      log("Google Sign-Out is disabled.");
     } catch (e) {
-      print('Error during Google Sign-Out: $e');
+      log("Error during Google Sign-Out: $e");
     }
     await _auth.signOut();
   }
