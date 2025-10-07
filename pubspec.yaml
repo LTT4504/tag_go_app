@@ -22,12 +22,12 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_svg: ^2.0.10+1
 
-  # Firebase & Auth
-  firebase_core: ^4.1.1       # bản gần đây của firebase_core :contentReference[oaicite:0]{index=0}
-  firebase_auth: ^6.1.0       # phiên bản bạn đã hỏi là 6.1.0 :contentReference[oaicite:1]{index=1}
+  # Firebase
+  firebase_core: ^4.0.0
+  firebase_auth: ^6.1.0
 
   # Google Sign-In
-  google_sign_in: ^7.2.0       # bản mới nhất được liệt kê trên pub.dev là 7.2.0 :contentReference[oaicite:2]{index=2}
+  google_sign_in: ^7.2.0
 
   # State management & storage
   get: ^4.6.6
