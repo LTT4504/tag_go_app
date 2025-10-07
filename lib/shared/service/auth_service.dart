@@ -1,33 +1,59 @@
+import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final GoogleSignIn _googleSignIn = GoogleSignIn.instance; 
 
+  /// Lắng nghe thay đổi trạng thái đăng nhập
   Stream<User?> userChanges() => _auth.authStateChanges();
+
+  /// User hiện tại
   User? get currentUser => _auth.currentUser;
 
-  /// Đăng nhập Google
   Future<UserCredential?> signInWithGoogle() async {
     try {
-      final isSignedIn = await _googleSignIn.isSignedIn();
-      if (isSignedIn) {
-        await _googleSignIn.disconnect().catchError((_) => null);
+      await _googleSignIn.initialize();
+
+      final account = await _googleSignIn.authenticate();
+
+      final googleAuth = account.authentication;
+      final idToken = googleAuth.idToken;
+
+      if (idToken == null) {
+        throw FirebaseAuthException(
+          code: 'MISSING_ID_TOKEN',
+          message: 'Không lấy được idToken từ Google.',
+        );
       }
 
-      final account = await _googleSignIn.signIn();
-      if (account == null) return null;
+      String? accessToken;
+      try {
+        final authClient = account.authorizationClient;
+        final clientAuth = await authClient.authorizationForScopes(['email', 'profile']);
+        accessToken = clientAuth?.accessToken;
+      } catch (_) {
+        accessToken = null;
+      }
 
-      final auth = await account.authentication;
+      // Tạo credential Firebase
       final credential = GoogleAuthProvider.credential(
-        accessToken: auth.accessToken,
-        idToken: auth.idToken,
+        idToken: idToken,
+        accessToken: accessToken,
       );
 
-      return await _auth.signInWithCredential(credential);
-    } on FirebaseAuthException {
-      rethrow; // 👈 giữ nguyên lỗi cho LoginController xử lý
+      // Đăng nhập Firebase
+      final userCred = await _auth.signInWithCredential(credential);
+      log('Đăng nhập Google thành công: ${userCred.user?.email}', name: 'AuthService');
+      return userCred;
+    } on FirebaseAuthException catch (e, stack) {
+      log('FirebaseAuthException: ${e.code} - ${e.message}',
+          name: 'AuthService', stackTrace: stack);
+      rethrow;
+    } catch (e, stack) {
+      log('Lỗi khi đăng nhập Google: $e', name: 'AuthService', stackTrace: stack);
+      rethrow;
     }
   }
 
@@ -35,24 +61,32 @@ class AuthService {
   Future<UserCredential?> signInWithEmailPassword(
       String email, String password) async {
     try {
-      return await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
+      final userCred = await _auth.signInWithEmailAndPassword(
+        email: email.trim(),
+        password: password.trim(),
       );
-    } on FirebaseAuthException {
-      rethrow; // 👈 không throw String nữa
+      log('Đăng nhập email thành công: ${userCred.user?.email}',
+          name: 'AuthService');
+      return userCred;
+    } on FirebaseAuthException catch (e, stack) {
+      log('Lỗi đăng nhập email: ${e.code}',
+          name: 'AuthService', stackTrace: stack);
+      rethrow;
     }
   }
 
-  /// Đăng ký Email/Password
+  /// Đăng ký bằng Email/Password
   Future<UserCredential?> registerWithEmailPassword(
       String email, String password) async {
     try {
-      return await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
+      final userCred = await _auth.createUserWithEmailAndPassword(
+        email: email.trim(),
+        password: password.trim(),
       );
-    } on FirebaseAuthException {
+      log('Đăng ký thành công: ${userCred.user?.email}', name: 'AuthService');
+      return userCred;
+    } on FirebaseAuthException catch (e, stack) {
+      log('Lỗi đăng ký: ${e.code}', name: 'AuthService', stackTrace: stack);
       rethrow;
     }
   }
@@ -60,23 +94,25 @@ class AuthService {
   /// Đăng nhập ẩn danh
   Future<UserCredential?> signInAnonymously() async {
     try {
-      return await _auth.signInAnonymously();
-    } on FirebaseAuthException {
+      final userCred = await _auth.signInAnonymously();
+      log('Đăng nhập ẩn danh thành công', name: 'AuthService');
+      return userCred;
+    } on FirebaseAuthException catch (e, stack) {
+      log('Lỗi đăng nhập ẩn danh: ${e.code}',
+          name: 'AuthService', stackTrace: stack);
       rethrow;
     }
   }
 
-  /// Đăng xuất
+  /// Đăng xuất (Google + Firebase)
   Future<void> signOut() async {
     try {
-      final isSignedIn = await _googleSignIn.isSignedIn();
-      if (isSignedIn) {
-        await _googleSignIn.disconnect().catchError((_) => null);
-        await _googleSignIn.signOut();
-      }
-    } catch (e) {
-      print('Error during Google Sign-Out: $e');
+      await _googleSignIn.disconnect().catchError((_) {});
+      await _googleSignIn.signOut();
+      await _auth.signOut();
+      log('Đăng xuất thành công', name: 'AuthService');
+    } catch (e, stack) {
+      log('Lỗi khi đăng xuất: $e', name: 'AuthService', stackTrace: stack);
     }
-    await _auth.signOut();
   }
 }
