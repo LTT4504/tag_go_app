@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import '../../routes/app_routes.dart';
@@ -17,7 +18,7 @@ class LoginController extends GetxController {
   final showPassword = false.obs;
   final rememberMe = false.obs;
 
-  /// Login bằng username & password
+  /// Đăng nhập bằng Email & Password
   Future<void> login() async {
     if (username.value.isEmpty || password.value.isEmpty) {
       _showError('Vui lòng nhập đầy đủ thông tin');
@@ -26,6 +27,7 @@ class LoginController extends GetxController {
 
     loading.value = true;
     error.value = '';
+
     try {
       final cred = await _auth.signInWithEmailPassword(
         username.value.trim(),
@@ -44,6 +46,7 @@ class LoginController extends GetxController {
         Get.offAllNamed(AppRoutes.home);
       }
     } on FirebaseAuthException catch (e) {
+      // Các lỗi FirebaseAuth chuẩn
       switch (e.code) {
         case 'user-not-found':
           _showError('Tài khoản không tồn tại');
@@ -57,33 +60,26 @@ class LoginController extends GetxController {
         case 'user-disabled':
           _showError('Tài khoản đã bị vô hiệu hóa');
           break;
+        case 'invalid-credential':
+          _showError('Tài khoản hoặc mật khẩu không đúng');
+          break;
         default:
           _showError(e.message ?? 'Đăng nhập thất bại');
       }
-    } catch (e) {
-      _showError('Lỗi đăng nhập: $e');
-    } finally {
-      loading.value = false;
-    }
-  }
-
-  /// Login bằng Google
-  Future<void> loginWithGoogle() async {
-    loading.value = true;
-    try {
-      final cred = await _auth.signInWithGoogle();
-      if (cred != null) {
-        box.write("token", cred.user?.uid);
-        box.write("email", cred.user?.email);
-        box.write("rememberMe", true);
-        Get.offAllNamed(AppRoutes.home);
+    } on PlatformException catch (e) {
+      // Lỗi native của Firebase (Android/iOS)
+      if (e.code == 'ERROR_INVALID_CREDENTIAL') {
+        _showError('Tài khoản hoặc mật khẩu không đúng');
       } else {
-        _showError('Bạn đã huỷ đăng nhập Google');
+        _showError('Lỗi hệ thống: ${e.message}');
       }
-    } on FirebaseAuthException catch (e) {
-      _showError(e.message ?? 'Đăng nhập Google thất bại');
     } catch (e) {
-      _showError('Lỗi Google login: $e');
+      // Bắt các lỗi còn lại
+      if (e.toString().contains('ERROR_INVALID_CREDENTIAL')) {
+        _showError('Tài khoản hoặc mật khẩu không đúng');
+      } else {
+        _showError('Lỗi đăng nhập: $e');
+      }
     } finally {
       loading.value = false;
     }
@@ -111,11 +107,12 @@ class LoginController extends GetxController {
     }
   }
 
+  /// Hiện/ẩn mật khẩu
   void togglePassword() {
     showPassword.value = !showPassword.value;
   }
 
-  /// Hàm hiển thị lỗi bằng Snackbar
+  /// Hiển thị lỗi qua Snackbar
   void _showError(String message) {
     error.value = message;
     Get.snackbar(
