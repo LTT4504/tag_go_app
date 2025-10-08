@@ -11,11 +11,27 @@ Future<void> main() async {
   await GetStorage.init();
   await Firebase.initializeApp();
 
-  runApp(const TagGoApp());
+  final box = GetStorage();
+
+  final bool isFirstTime = box.read('is_first_time') ?? true;
+  final bool isLoggedIn = box.read('is_logged_in') ?? false;
+
+  String initialRoute;
+
+  if (isFirstTime) {
+    initialRoute = AppRoutes.intro;
+  } else if (isLoggedIn) {
+    initialRoute = AppRoutes.home;
+  } else {
+    initialRoute = AppRoutes.splash;
+  }
+
+  runApp(TagGoApp(initialRoute: initialRoute));
 }
 
 class TagGoApp extends StatelessWidget {
-  const TagGoApp({super.key});
+  final String initialRoute;
+  const TagGoApp({super.key, required this.initialRoute});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +40,7 @@ class TagGoApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       themeMode: ThemeMode.system,
-      initialRoute: AppRoutes.splash,
+      initialRoute: initialRoute,
       getPages: AppPages.pages,
       builder: (context, child) {
         return SafeArea(
@@ -34,4 +50,3 @@ class TagGoApp extends StatelessWidget {
     );
   }
 }
-
