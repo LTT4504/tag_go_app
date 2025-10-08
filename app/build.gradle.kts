@@ -1,7 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("com.google.gms.google-services") // để Firebase hoạt động
+    id("com.google.gms.google-services") 
     id("dev.flutter.flutter-gradle-plugin")
 }
 
@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.tag_go_app"
-        minSdk = 23
+        minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
