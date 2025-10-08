@@ -1,25 +1,26 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import '../../routes/app_routes.dart';
 
 class SplashController extends GetxController {
-  final box = GetStorage();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   void onReady() {
     super.onReady();
-    _handleNext();
+    _checkLogin();
   }
 
-  Future<void> _handleNext() async {
-    await Future.delayed(const Duration(seconds: 2));
+  Future<void> _checkLogin() async {
+    await Future.delayed(const Duration(seconds: 2)); // hiệu ứng loading logo
+    final user = _auth.currentUser;
 
-    final seenIntro = box.read('seenIntro') == true;
-
-    if (seenIntro) {
-      Get.offAllNamed(AppRoutes.login);
+    if (user != null) {
+      // ✅ Nếu đã đăng nhập thì vào Home
+      Get.offAllNamed(AppRoutes.home);
     } else {
-      Get.offAllNamed(AppRoutes.intro);
+      // 🔒 Nếu chưa thì vào Login
+      Get.offAllNamed(AppRoutes.login);
     }
   }
 }

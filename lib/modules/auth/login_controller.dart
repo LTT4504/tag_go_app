@@ -18,7 +18,7 @@ class LoginController extends GetxController {
   final showPassword = false.obs;
   final rememberMe = false.obs;
 
-  /// Đăng nhập bằng Email & Password
+  /// --- Đăng nhập bằng Email ---
   Future<void> login() async {
     if (username.value.isEmpty || password.value.isEmpty) {
       _showError('Vui lòng nhập đầy đủ thông tin');
@@ -35,18 +35,10 @@ class LoginController extends GetxController {
       );
 
       if (cred != null) {
-        if (rememberMe.value) {
-          box.write("token", cred.user?.uid);
-          box.write("email", cred.user?.email);
-          box.write("rememberMe", true);
-        } else {
-          box.remove("token");
-          box.write("rememberMe", false);
-        }
+        _saveUser(cred.user, method: 'email');
         Get.offAllNamed(AppRoutes.home);
       }
     } on FirebaseAuthException catch (e) {
-      // Các lỗi FirebaseAuth chuẩn
       switch (e.code) {
         case 'user-not-found':
           _showError('Tài khoản không tồn tại');
@@ -54,52 +46,47 @@ class LoginController extends GetxController {
         case 'wrong-password':
           _showError('Mật khẩu không đúng');
           break;
-        case 'invalid-email':
-          _showError('Email không hợp lệ');
-          break;
-        case 'user-disabled':
-          _showError('Tài khoản đã bị vô hiệu hóa');
-          break;
-        case 'invalid-credential':
-          _showError('Tài khoản hoặc mật khẩu không đúng');
-          break;
         default:
           _showError(e.message ?? 'Đăng nhập thất bại');
       }
     } on PlatformException catch (e) {
-      // Lỗi native của Firebase (Android/iOS)
-      if (e.code == 'ERROR_INVALID_CREDENTIAL') {
-        _showError('Tài khoản hoặc mật khẩu không đúng');
-      } else {
-        _showError('Lỗi hệ thống: ${e.message}');
-      }
+      _showError('Lỗi hệ thống: ${e.message}');
     } catch (e) {
-      // Bắt các lỗi còn lại
-      if (e.toString().contains('ERROR_INVALID_CREDENTIAL')) {
-        _showError('Tài khoản hoặc mật khẩu không đúng');
-      } else {
-        _showError('Lỗi đăng nhập: $e');
-      }
+      _showError('Lỗi đăng nhập: $e');
     } finally {
       loading.value = false;
     }
   }
 
-  /// Tiếp tục dưới dạng khách
+  /// --- Đăng nhập bằng Google ---
+  Future<void> loginWithGoogle() async {
+    loading.value = true;
+    try {
+      final cred = await _auth.signInWithGoogle();
+      if (cred?.user != null) {
+        _saveUser(cred!.user, method: 'google');
+        Get.offAllNamed(AppRoutes.home);
+      } else {
+        _showError('Không thể đăng nhập bằng Google');
+      }
+    } catch (e) {
+      _showError('Lỗi đăng nhập Google: $e');
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  /// --- Đăng nhập ẩn danh ---
   Future<void> continueAsGuest() async {
     loading.value = true;
     try {
       final cred = await _auth.signInAnonymously();
       if (cred != null) {
-        box.write("token", cred.user?.uid);
-        box.write("guest", true);
-        box.write("rememberMe", false);
+        _saveUser(cred.user, method: 'guest');
         Get.offAllNamed(AppRoutes.home);
       } else {
         _showError('Không thể đăng nhập ẩn danh');
       }
-    } on FirebaseAuthException catch (e) {
-      _showError(e.message ?? 'Đăng nhập khách thất bại');
     } catch (e) {
       _showError('Lỗi đăng nhập khách: $e');
     } finally {
@@ -107,12 +94,17 @@ class LoginController extends GetxController {
     }
   }
 
-  /// Hiện/ẩn mật khẩu
-  void togglePassword() {
-    showPassword.value = !showPassword.value;
+  /// --- Lưu thông tin user ---
+  void _saveUser(User? user, {required String method}) {
+    if (user == null) return;
+    box.write("token", user.uid);
+    box.write("email", user.email);
+    box.write("loginMethod", method);
+    box.write("rememberMe", rememberMe.value);
   }
 
-  /// Hiển thị lỗi qua Snackbar
+  void togglePassword() => showPassword.value = !showPassword.value;
+
   void _showError(String message) {
     error.value = message;
     Get.snackbar(

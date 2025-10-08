@@ -1,8 +1,6 @@
 import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'dart:developer'; // Added for using log
-
-// import 'package:google_sign_in/google_sign_in.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
