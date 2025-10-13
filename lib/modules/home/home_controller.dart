@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:developer'; 
 import 'package:get/get.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
@@ -7,8 +9,10 @@ import '../../routes/app_routes.dart';
 
 class HomeController extends GetxController {
   final spots = <Spot>[].obs;
-  var currentPosition = Rxn<LatLng>();
-  final mapController = MapController(); 
+  final currentPosition = Rxn<LatLng>();
+  final mapController = MapController();
+
+  final isLoadingLocation = false.obs;
 
   @override
   void onInit() {
@@ -17,38 +21,73 @@ class HomeController extends GetxController {
   }
 
   Future<void> _getCurrentLocation() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) return;
+    try {
+      isLoadingLocation.value = true;
+      log('Bắt đầu lấy vị trí...');
 
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) return;
-    }
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      log('Dịch vụ định vị: $serviceEnabled');
+      if (!serviceEnabled) {
+        Get.snackbar('Lỗi', 'Vui lòng bật GPS để định vị vị trí hiện tại');
+        return;
+      }
 
-    if (permission == LocationPermission.deniedForever) return;
+      LocationPermission permission = await Geolocator.checkPermission();
+      log('Quyền hiện tại: $permission');
 
-    final pos = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        log('Quyền sau khi xin: $permission');
+        if (permission == LocationPermission.denied) {
+          Get.snackbar('Từ chối', 'Ứng dụng cần quyền truy cập vị trí');
+          return;
+        }
+      }
 
-    currentPosition.value = LatLng(pos.latitude, pos.longitude);
+      if (permission == LocationPermission.deniedForever) {
+        Get.snackbar('Lỗi', 'Bạn đã chặn quyền vị trí vĩnh viễn');
+        return;
+      }
 
-    // When there is a location, move the map to that location
-    if (currentPosition.value != null) {
+      final lastPos = await Geolocator.getLastKnownPosition();
+      if (lastPos != null) {
+        log('Dùng vị trí cũ: ${lastPos.latitude}, ${lastPos.longitude}');
+        currentPosition.value = LatLng(lastPos.latitude, lastPos.longitude);
+        mapController.move(currentPosition.value!, 16);
+      }
+
+      log('Đang lấy vị trí mới...');
+     final pos = await Geolocator.getCurrentPosition(
+  locationSettings: const LocationSettings(
+    accuracy: LocationAccuracy.medium,
+  ),
+);
+
+
+      log('Vị trí mới: ${pos.latitude}, ${pos.longitude}');
+      currentPosition.value = LatLng(pos.latitude, pos.longitude);
       mapController.move(currentPosition.value!, 16);
+    } catch (e, stack) {
+      log('Lỗi lấy vị trí: $e', stackTrace: stack);
+      Get.snackbar('Lỗi', 'Không thể xác định vị trí hiện tại');
+    } finally {
+      isLoadingLocation.value = false;
+      log('Hoàn tất lấy vị trí');
     }
   }
 
   Future<void> refreshLocation() async {
+    log('Làm mới vị trí...');
     await _getCurrentLocation();
   }
 
   void goAddSpot() {
+    log('Chuyển đến trang thêm Spot');
     Get.toNamed(AppRoutes.addSpot);
   }
 
   void openSpot(Spot s) {
+    log('Mở chi tiết Spot: ${s.name}');
     Get.toNamed(AppRoutes.spotDetail, arguments: s);
   }
 }
