@@ -2,6 +2,7 @@ import 'package:get_storage/get_storage.dart';
 
 class StorageService {
   static final _box = GetStorage();
+  static const _token = 'token';
   static const _keyUserId = 'userId';
   static const _keyEmail = 'email';
 
@@ -12,6 +13,9 @@ class StorageService {
       await _box.write(_keyEmail, email);
     }
   }
+
+  static String? get token =>
+      _box.read<String>(_token);
 
   /// Lấy userId
   static String? get userId => _box.read<String>(_keyUserId);

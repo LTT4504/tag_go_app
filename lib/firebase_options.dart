@@ -27,8 +27,6 @@ class DefaultFirebaseOptions {
         return android;
       case TargetPlatform.iOS:
         return ios;
-      case TargetPlatform.macOS:
-        return macos;
       case TargetPlatform.windows:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for windows - '
@@ -48,24 +46,13 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDKc_3anLcKIcS30QoqOvwRzsHPNUnEoLs',
-    appId: '1:663171440806:android:526a35f44974d04d3e1467',
+    appId: '1:663171440806:android:942f1912dc7b0a953e1467',
     messagingSenderId: '663171440806',
     projectId: 'tag-go-d69f5',
     storageBucket: 'tag-go-d69f5.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyA67qAQ3tG0KFMux_x8MPoaWm1k7UM9obU',
-    appId: '1:663171440806:ios:6b8617eebf29021d3e1467',
-    messagingSenderId: '663171440806',
-    projectId: 'tag-go-d69f5',
-    storageBucket: 'tag-go-d69f5.firebasestorage.app',
-    androidClientId: '663171440806-qaa7q7b12hpjgputuql3j1629ki8h7br.apps.googleusercontent.com',
-    iosClientId: '663171440806-7fjsr3qvj8tshpj0odheh3fof9b9v41n.apps.googleusercontent.com',
-    iosBundleId: 'com.example.tagGoApp',
-  );
-
-  static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyA67qAQ3tG0KFMux_x8MPoaWm1k7UM9obU',
     appId: '1:663171440806:ios:6b8617eebf29021d3e1467',
     messagingSenderId: '663171440806',

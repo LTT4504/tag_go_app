@@ -12,6 +12,8 @@ class RegisterController extends GetxController {
   var showPassword = false.obs;
   var showConfirmPassword = false.obs;
 
+  final formKey = GlobalKey<FormState>();
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<void> register() async {
@@ -32,12 +34,8 @@ class RegisterController extends GetxController {
       loading.value = true;
       error.value = "";
 
-      await _auth.createUserWithEmailAndPassword(
-        email: email.value.trim(),
-        password: password.value.trim(),
-      );
+      await _auth.createUserWithEmailAndPassword(email: email.value.trim(), password: password.value.trim());
 
-     
       Get.snackbar(
         "Success",
         "Account created successfully. Please login!",

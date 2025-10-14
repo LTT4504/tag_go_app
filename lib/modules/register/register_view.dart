@@ -9,7 +9,7 @@ class RegisterView extends GetView<RegisterController> {
 
   @override
   Widget build(BuildContext context) {
-    final formKey = GlobalKey<FormState>();
+  
 
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
@@ -49,7 +49,7 @@ class RegisterView extends GetView<RegisterController> {
 
                   /// Form
                   Form(
-                    key: formKey,
+                    key: controller.formKey,
                     child: Column(
                       children: [
                         /// Email
@@ -137,7 +137,7 @@ class RegisterView extends GetView<RegisterController> {
                                 onPressed: controller.loading.value
                                     ? null
                                     : () {
-                                        if (formKey.currentState!.validate()) {
+                                        if (controller.formKey.currentState!.validate()) {
                                           controller.register();
                                         }
                                       },
