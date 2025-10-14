@@ -32,6 +32,8 @@ dependencies:
   # State management & storage
   get: ^4.6.6
   get_storage: ^2.1.1
+  flutter_easyloading: ^3.0.5
+  dio: ^5.9.0
 
 dev_dependencies:
   flutter_test:
