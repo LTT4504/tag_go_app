@@ -18,6 +18,21 @@ class LoginController extends GetxController {
   final showPassword = false.obs;
   final rememberMe = false.obs;
 
+  @override
+void onInit() {
+  super.onInit();
+  final savedUser = box.read("savedUsername");
+  final savedPass = box.read("savedPassword");
+  final remember = box.read("rememberMe") ?? false;
+
+  if (savedUser != null && savedPass != null && remember) {
+    username.value = savedUser;
+    password.value = savedPass;
+    rememberMe.value = true;
+  }
+}
+
+
   /// --- Đăng nhập bằng Email ---
   Future<void> login() async {
     if (username.value.isEmpty || password.value.isEmpty) {
@@ -94,14 +109,22 @@ class LoginController extends GetxController {
     }
   }
 
-  /// --- Lưu thông tin user ---
   void _saveUser(User? user, {required String method}) {
-    if (user == null) return;
-    box.write("token", user.uid);
-    box.write("email", user.email);
-    box.write("loginMethod", method);
-    box.write("rememberMe", rememberMe.value);
+  if (user == null) return;
+
+  box.write("token", user.uid);
+  box.write("email", user.email);
+  box.write("loginMethod", method);
+  box.write("rememberMe", rememberMe.value);
+
+  if (rememberMe.value) {
+    box.write("savedUsername", username.value);
+    box.write("savedPassword", password.value);
+  } else {
+    box.remove("savedUsername");
+    box.remove("savedPassword");
   }
+}
 
   void togglePassword() => showPassword.value = !showPassword.value;
 

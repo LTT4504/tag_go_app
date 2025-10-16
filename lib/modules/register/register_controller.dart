@@ -3,8 +3,9 @@ import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class RegisterController extends GetxController {
+  var fullName = "".obs; 
   var email = "".obs;
-  var phoneNumber = "".obs; // ✅ thêm số điện thoại
+  var phoneNumber = "".obs;
   var password = "".obs;
   var confirmPassword = "".obs;
   var loading = false.obs;
@@ -13,7 +14,6 @@ class RegisterController extends GetxController {
   var showConfirmPassword = false.obs;
 
   final formKey = GlobalKey<FormState>();
-
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<void> register() async {
@@ -34,7 +34,14 @@ class RegisterController extends GetxController {
       loading.value = true;
       error.value = "";
 
-      await _auth.createUserWithEmailAndPassword(email: email.value.trim(), password: password.value.trim());
+      // ✅ Đăng ký với Firebase
+      await _auth.createUserWithEmailAndPassword(
+        email: email.value.trim(),
+        password: password.value.trim(),
+      );
+
+      // ✅ Lưu họ tên vào Firebase User (hiển thị trong Firebase Console)
+      await _auth.currentUser?.updateDisplayName(fullName.value.trim());
 
       Get.snackbar(
         "Success",

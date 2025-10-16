@@ -9,8 +9,6 @@ class RegisterView extends GetView<RegisterController> {
 
   @override
   Widget build(BuildContext context) {
-  
-
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     final scale = width / 375;
@@ -24,7 +22,7 @@ class RegisterView extends GetView<RegisterController> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [ AppColors.textWhite, AppColors.pastelYellow],
+            colors: [AppColors.textWhite, AppColors.pastelYellow],
           ),
         ),
         child: SafeArea(
@@ -37,7 +35,6 @@ class RegisterView extends GetView<RegisterController> {
                     MediaQuery.of(context).padding.bottom,
               ),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.start, // Align all content to the top
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   /// Logo
@@ -52,6 +49,19 @@ class RegisterView extends GetView<RegisterController> {
                     key: controller.formKey,
                     child: Column(
                       children: [
+                   
+                        AppInput(
+                          label: "Full Name",
+                          onChanged: (v) => controller.fullName.value = v,
+                          validator: (v) =>
+                              v == null || v.isEmpty ? "Enter your name" : null,
+                          prefixIcon: const Icon(
+                            Icons.person,
+                            color: AppColors.darkPinkColor,
+                          ),
+                        ),
+                        SizedBox(height: 16 * scale),
+
                         /// Email
                         AppInput(
                           label: "Email",
@@ -65,7 +75,7 @@ class RegisterView extends GetView<RegisterController> {
                         ),
                         SizedBox(height: 16 * scale),
 
-                        /// Phone Number ✅ thêm vào
+                        /// Phone Number
                         AppInput(
                           label: "Phone Number",
                           keyboardType: TextInputType.phone,
@@ -137,7 +147,8 @@ class RegisterView extends GetView<RegisterController> {
                                 onPressed: controller.loading.value
                                     ? null
                                     : () {
-                                        if (controller.formKey.currentState!.validate()) {
+                                        if (controller.formKey.currentState!
+                                            .validate()) {
                                           controller.register();
                                         }
                                       },
