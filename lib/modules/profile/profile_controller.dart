@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../routes/app_routes.dart';
 import '../../shared/service/auth_service.dart';
 
 class ProfileController extends GetxController {
@@ -15,10 +14,8 @@ class ProfileController extends GetxController {
   /// Lấy email
   String? get email => _auth.currentUser?.email;
 
-  /// Logout
   Future<void> logout() async {
-    await _auth.signOut();
-    Get.offAllNamed(AppRoutes.login);
+    await _auth.logout(); 
   }
 
   /// Toggle theme giữa Light / Dark

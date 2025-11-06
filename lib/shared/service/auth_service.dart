@@ -1,10 +1,15 @@
 import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:taggo/routes/app_routes.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn.instance; 
+  final box = GetStorage();
+
 
   /// Lắng nghe thay đổi trạng thái đăng nhập
   Stream<User?> userChanges() => _auth.authStateChanges();
@@ -104,15 +109,24 @@ class AuthService {
     }
   }
 
-  /// Đăng xuất (Google + Firebase)
-  Future<void> signOut() async {
-    try {
-      await _googleSignIn.disconnect().catchError((_) {});
-      await _googleSignIn.signOut();
-      await _auth.signOut();
-      log('Đăng xuất thành công', name: 'AuthService');
-    } catch (e, stack) {
-      log('Lỗi khi đăng xuất: $e', name: 'AuthService', stackTrace: stack);
-    }
+Future<void> logout() async {
+  final savedUser = box.read("savedUsername");
+  final savedPass = box.read("savedPassword");
+  final remember = box.read("rememberMe") ?? false;
+
+  await _auth.signOut(); 
+
+  // Xóa dữ liệu user
+  await box.erase();
+
+  // Giữ lại tài khoản nếu có bật "Ghi nhớ đăng nhập"
+  if (remember) {
+    box.write("savedUsername", savedUser);
+    box.write("savedPassword", savedPass);
+    box.write("rememberMe", true);
   }
+
+  Get.offAllNamed(AppRoutes.login);
+}
+
 }

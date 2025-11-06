@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import '../modules/add_spot/add_spot_binding.dart';
-import '../modules/add_spot/add_spot_view.dart';
+import '../modules/add_spot/add_spot_bottomsheet.dart';
 import '../modules/auth/login_binding.dart';
 import '../modules/auth/login_view.dart';
 import '../modules/friends_map/fen_map_binding.dart';
@@ -46,7 +46,7 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.addSpot,
-      page: () => const AddSpotView(),
+      page: () => const AddSpotBottomSheet(),
       binding: AddSpotBinding(),
     ),
     GetPage(
