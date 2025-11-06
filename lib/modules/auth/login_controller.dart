@@ -1,140 +1,145 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import '../../routes/app_routes.dart';
 import '../../shared/service/auth_service.dart';
+import '../base/base_controller.dart';
 
-class LoginController extends GetxController {
-  final AuthService _auth = AuthService();
+class LoginController extends BaseController<AuthService> {
+  LoginController(AuthService repository) : super(repository);
+
   final box = GetStorage();
 
-  final loading = false.obs;
-  final error = ''.obs;
+  /// Controllers
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
 
-  final username = ''.obs;
-  final password = ''.obs;
-
+  /// Observables
   final showPassword = false.obs;
   final rememberMe = false.obs;
 
+  /// Form Key
+  final formKey = GlobalKey<FormState>();
+
   @override
-void onInit() {
-  super.onInit();
-  final savedUser = box.read("savedUsername");
-  final savedPass = box.read("savedPassword");
-  final remember = box.read("rememberMe") ?? false;
-
-  if (savedUser != null && savedPass != null && remember) {
-    username.value = savedUser;
-    password.value = savedPass;
-    rememberMe.value = true;
+  void onInit() {
+    super.onInit();
+    _loadSavedLogin();
   }
-}
 
+  void _loadSavedLogin() {
+    final savedUser = box.read("savedUsername");
+    final savedPass = box.read("savedPassword");
+    final remember = box.read("rememberMe") ?? false;
+
+    if (savedUser != null && savedPass != null && remember) {
+      emailController.text = savedUser;
+      passwordController.text = savedPass;
+      rememberMe.value = true;
+    }
+  }
+
+  /// Toggle hiển thị mật khẩu
+  void togglePassword() => showPassword.value = !showPassword.value;
+
+  /// Lưu trạng thái remember me
+  void toggleRemember(bool? value) {
+    rememberMe.value = value ?? false;
+  }
 
   /// --- Đăng nhập bằng Email ---
   Future<void> login() async {
-    if (username.value.isEmpty || password.value.isEmpty) {
-      _showError('Vui lòng nhập đầy đủ thông tin');
-      return;
-    }
+    if (!formKey.currentState!.validate()) return;
 
-    loading.value = true;
-    error.value = '';
-
+    setLoading(true);
     try {
-      final cred = await _auth.signInWithEmailPassword(
-        username.value.trim(),
-        password.value.trim(),
+      final cred = await repository.signInWithEmailPassword(
+        emailController.text.trim(),
+        passwordController.text.trim(),
       );
 
       if (cred != null) {
         _saveUser(cred.user, method: 'email');
+        showSuccess('Thành công', 'Đăng nhập thành công');
         Get.offAllNamed(AppRoutes.home);
+      } else {
+        showError('Lỗi', 'Không thể đăng nhập');
       }
     } on FirebaseAuthException catch (e) {
       switch (e.code) {
         case 'user-not-found':
-          _showError('Tài khoản không tồn tại');
+          showError('Lỗi', 'Tài khoản không tồn tại');
           break;
         case 'wrong-password':
-          _showError('Mật khẩu không đúng');
+          showError('Lỗi', 'Mật khẩu không đúng');
           break;
         default:
-          _showError(e.message ?? 'Đăng nhập thất bại');
+          showError('Lỗi', e.message ?? 'Đăng nhập thất bại');
       }
     } on PlatformException catch (e) {
-      _showError('Lỗi hệ thống: ${e.message}');
+      showError('Lỗi hệ thống', e.message ?? 'Không rõ nguyên nhân');
     } catch (e) {
-      _showError('Lỗi đăng nhập: $e');
+      showError('Lỗi đăng nhập', e.toString());
     } finally {
-      loading.value = false;
+      setLoading(false);
     }
   }
 
-  /// --- Đăng nhập bằng Google ---
+  /// --- Đăng nhập Google ---
   Future<void> loginWithGoogle() async {
-    loading.value = true;
+    setLoading(true);
     try {
-      final cred = await _auth.signInWithGoogle();
+      final cred = await repository.signInWithGoogle();
       if (cred?.user != null) {
         _saveUser(cred!.user, method: 'google');
+        showSuccess('Thành công', 'Đăng nhập bằng Google thành công');
         Get.offAllNamed(AppRoutes.home);
       } else {
-        _showError('Không thể đăng nhập bằng Google');
+        showError('Đăng nhập Google', 'Quá trình đăng nhập bị hủy hoặc không thành công.');
       }
     } catch (e) {
-      _showError('Lỗi đăng nhập Google: $e');
+      showError('Lỗi', 'Đăng nhập Google thất bại: $e');
     } finally {
-      loading.value = false;
+      setLoading(false);
     }
   }
 
   /// --- Đăng nhập ẩn danh ---
   Future<void> continueAsGuest() async {
-    loading.value = true;
+    setLoading(true);
     try {
-      final cred = await _auth.signInAnonymously();
+      final cred = await repository.signInAnonymously();
       if (cred != null) {
         _saveUser(cred.user, method: 'guest');
+        showSuccess('Thành công', 'Đăng nhập ẩn danh thành công');
         Get.offAllNamed(AppRoutes.home);
       } else {
-        _showError('Không thể đăng nhập ẩn danh');
+        showError('Lỗi', 'Không thể đăng nhập ẩn danh');
       }
     } catch (e) {
-      _showError('Lỗi đăng nhập khách: $e');
+      showError('Lỗi', 'Đăng nhập khách thất bại: $e');
     } finally {
-      loading.value = false;
+      setLoading(false);
     }
   }
 
+  /// --- Lưu user ---
   void _saveUser(User? user, {required String method}) {
-  if (user == null) return;
+    if (user == null) return;
 
-  box.write("token", user.uid);
-  box.write("email", user.email);
-  box.write("loginMethod", method);
-  box.write("rememberMe", rememberMe.value);
+    box.write("token", user.uid);
+    box.write("email", user.email);
+    box.write("loginMethod", method);
+    box.write("rememberMe", rememberMe.value);
 
-  if (rememberMe.value) {
-    box.write("savedUsername", username.value);
-    box.write("savedPassword", password.value);
-  } else {
-    box.remove("savedUsername");
-    box.remove("savedPassword");
-  }
-}
-
-  void togglePassword() => showPassword.value = !showPassword.value;
-
-  void _showError(String message) {
-    error.value = message;
-    Get.snackbar(
-      "Đăng nhập thất bại",
-      message,
-      snackPosition: SnackPosition.TOP,
-      duration: const Duration(seconds: 3),
-    );
+    if (rememberMe.value) {
+      box.write("savedUsername", emailController.text);
+      box.write("savedPassword", passwordController.text);
+    } else {
+      box.remove("savedUsername");
+      box.remove("savedPassword");
+    }
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:taggo/app_binding.dart';
 import 'package:taggo/routes/app_pages.dart';
@@ -20,11 +21,8 @@ class TagGoApp extends StatelessWidget {
       getPages: AppPages.pages,
       initialBinding: AppBinding(),
       smartManagement: SmartManagement.keepFactory,
-      builder: (context, child) {
-        return SafeArea(
-          child: child ?? const SizedBox.shrink(),
-        );
-      },
+      builder: EasyLoading.init(), 
     );
   }
 }
+
