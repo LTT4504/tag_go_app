@@ -4,10 +4,11 @@ import '../../models/spot_model.dart';
 
 class AddSpotController extends GetxController {
   final nameCtrl = TextEditingController();
-  final favCtrl = TextEditingController(); // nhập "latte, matcha"
+  final favCtrl = TextEditingController(); 
   final noteCtrl = TextEditingController();
   final isPrivate = true.obs;
-  final mood = '😍'.obs;
+  final placeType = ''.obs;
+
 
   double? lat;
   double? lng;
@@ -32,9 +33,10 @@ class AddSpotController extends GetxController {
       lat: lat ?? 0,
       lng: lng ?? 0,
       favorites: favs,
-      mood: mood.value,
       note: noteCtrl.text,
       isPrivate: isPrivate.value,
+      placeType: placeType.value.isNotEmpty ? placeType.value : 'drink',
+      mood: '',
     );
   }
 }

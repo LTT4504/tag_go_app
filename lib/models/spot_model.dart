@@ -1,41 +1,59 @@
 class Spot {
-  final String id;
-  final String name;
-  final double lat;
-  final double lng;
-  final List<String> favorites; // món yêu thích
-  final List<String> photos;    // url ảnh
-  final String mood;            // emoji/text
-  final String note;
-  final bool isPrivate;
-  final DateTime createdAt;
+  String id;
+  String name;
+  List<String> favorites;
+  String note;
+  String placeType;
+  bool isPrivate;
+  String mood;
+  double lat;
+  double lng;
 
   Spot({
     required this.id,
     required this.name,
+    required this.favorites,
+    required this.note,
+    required this.placeType,
+    required this.isPrivate,
+    required this.mood,
     required this.lat,
     required this.lng,
-    this.favorites = const [],
-    this.photos = const [],
-    this.mood = '',
-    this.note = '',
-    this.isPrivate = true,
-    DateTime? createdAt,
-  }) : createdAt = createdAt ?? DateTime.now();
+  });
 
-  Map<String, dynamic> toMap() => {
-    'id': id, 'name': name, 'lat': lat, 'lng': lng, 'favorites': favorites,
-    'photos': photos, 'mood': mood, 'note': note, 'isPrivate': isPrivate,
-    'createdAt': createdAt.toIso8601String(),
-  };
+  factory Spot.empty() => Spot(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        name: '',
+        favorites: [],
+        note: '',
+        placeType: 'drink',
+        isPrivate: false,
+        mood: '',
+        lat: 0,
+        lng: 0,
+      );
 
-  factory Spot.fromMap(Map<String, dynamic> m) => Spot(
-    id: m['id'], name: m['name'], lat: (m['lat'] as num).toDouble(),
-    lng: (m['lng'] as num).toDouble(),
-    favorites: List<String>.from(m['favorites'] ?? []),
-    photos: List<String>.from(m['photos'] ?? []),
-    mood: m['mood'] ?? '', note: m['note'] ?? '',
-    isPrivate: m['isPrivate'] ?? true,
-    createdAt: DateTime.tryParse(m['createdAt'] ?? '') ?? DateTime.now(),
-  );
+  factory Spot.fromJson(Map<String, dynamic> json) => Spot(
+        id: json['id']?.toString() ?? DateTime.now().millisecondsSinceEpoch.toString(),
+        name: json['name'] ?? '',
+        favorites: (json['favorites'] as List?)?.map((e) => e.toString()).toList() ?? [],
+        note: json['note'] ?? '',
+        placeType: json['placeType'] ?? json['type'] ?? 'drink',
+        isPrivate: json['isPrivate'] ?? false,
+        mood: json['mood'] ?? '',
+        lat: (json['lat'] ?? 0).toDouble(),
+        lng: (json['lng'] ?? 0).toDouble(),
+      );
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'favorites': favorites,
+        'note': note,
+        'placeType': placeType,
+        'isPrivate': isPrivate,
+        'mood': mood,
+        'lat': lat,
+        'lng': lng,
+      };
 }

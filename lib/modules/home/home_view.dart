@@ -20,7 +20,6 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  // ===================== APP BAR =====================
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       backgroundColor: Colors.white,
@@ -72,8 +71,11 @@ class HomeView extends GetView<HomeController> {
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.notifications_none,
-                color: Colors.black87, size: 28),
+            icon: const Icon(
+              Icons.notifications_none,
+              color: Colors.black87,
+              size: 28,
+            ),
             onPressed: controller.showNotification,
           ),
         ],
@@ -81,7 +83,6 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  // ===================== BODY =====================
   Widget _buildBody() {
     return Container(
       decoration: const BoxDecoration(
@@ -130,12 +131,49 @@ class HomeView extends GetView<HomeController> {
                     ...controller.spots.map(
                       (s) => Marker(
                         point: LatLng(s.lat, s.lng),
-                        width: 52,
-                        height: 52,
-                        child: const Icon(
-                          Icons.location_pin,
-                          color: Colors.redAccent,
-                          size: 42,
+                        width: 60,
+                        height: 60,
+                        child: Column(
+                          children: [
+                            Text(
+                              s.name,
+                              style: const TextStyle(
+                                color: Colors.black87,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: _getSpotColor(s.placeType),
+                                  width: 2,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.08),
+                                    blurRadius: 6,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Icon(
+                                _getSpotIcon(s.placeType),
+                                color: _getSpotColor(s.placeType),
+                                size: 20,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -151,8 +189,11 @@ class HomeView extends GetView<HomeController> {
                 backgroundColor: Colors.white,
                 elevation: 6,
                 onPressed: controller.refreshLocation,
-                child: const Icon(Icons.gps_fixed,
-                    color: AppColors.pinkColor, size: 30),
+                child: const Icon(
+                  Icons.gps_fixed,
+                  color: AppColors.pinkColor,
+                  size: 30,
+                ),
               ),
             ),
           ],
@@ -161,7 +202,6 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  // ===================== BOTTOM NAV =====================
   Widget _buildBottomNav() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 25),
@@ -185,9 +225,13 @@ class HomeView extends GetView<HomeController> {
             children: [
               _circleButton(Icons.list_alt, controller.goMyMap, 45),
               _circleButton(Icons.group, controller.goFriendsMap, 45),
-              _circleButton(Icons.add_location_alt, controller.goAddSpot, 60,
-                  bgColor: AppColors.darkPinkColor,
-                  iconColor: AppColors.textWhite),
+              _circleButton(
+                Icons.add_location_alt,
+                controller.goAddSpot,
+                60,
+                bgColor: AppColors.darkPinkColor,
+                iconColor: AppColors.textWhite,
+              ),
               _circleButton(Icons.person, controller.goProfile, 45),
               _circleButton(Icons.settings, controller.goSettings, 45),
             ],
@@ -197,8 +241,13 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  Widget _circleButton(IconData icon, VoidCallback onTap, double size,
-      {Color bgColor = Colors.white, Color iconColor = Colors.black87}) {
+  Widget _circleButton(
+    IconData icon,
+    VoidCallback onTap,
+    double size, {
+    Color bgColor = Colors.white,
+    Color iconColor = Colors.black87,
+  }) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(30),
@@ -209,11 +258,49 @@ class HomeView extends GetView<HomeController> {
           color: bgColor,
           shape: BoxShape.circle,
           boxShadow: const [
-            BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 4,
+              offset: Offset(0, 2),
+            ),
           ],
         ),
         child: Icon(icon, color: iconColor, size: 26),
       ),
     );
+  }
+
+  IconData _getSpotIcon(String? type) {
+    switch (type) {
+      case 'drink':
+        return Icons.local_cafe_rounded;
+      case 'food':
+        return Icons.restaurant_rounded;
+      case 'home':
+        return Icons.home_rounded;
+      case 'game':
+        return Icons.sports_esports_rounded;
+      case 'movie':
+        return Icons.movie;
+      default:
+        return Icons.location_pin;
+    }
+  }
+
+  Color _getSpotColor(String? type) {
+    switch (type) {
+      case 'drink':
+        return Colors.brown;
+      case 'food':
+        return Colors.orangeAccent;
+      case 'home':
+        return Colors.blueAccent;
+      case 'game':
+        return Colors.purpleAccent;
+      case 'movie':
+        return Colors.green;
+      default:
+        return Colors.redAccent;
+    }
   }
 }
